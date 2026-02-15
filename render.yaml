@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: aggregatorcore-admin
+    runtime: node
+    rootDir: admin-web
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: https://aggregatorcore.onrender.com
+    plan: free

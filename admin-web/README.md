@@ -2,24 +2,39 @@
 
 Next.js admin panel for the Loan Aggregator backend.
 
-## Setup
+## Deploy to Render
 
-1. Copy `.env.example` to `.env.local`
-2. Set `NEXT_PUBLIC_API_BASE_URL` to your backend URL (default: http://localhost:5000)
-3. Set `ADMIN_PASSWORD` in the backend `.env` (used for login)
+### Option A: Blueprint (recommended)
 
-## Run
+1. In [Render Dashboard](https://dashboard.render.com), click **New** → **Blueprint**
+2. Connect the same repo: `aggregatorcore/aggregatorcore`
+3. Render will detect `render.yaml` and create the admin service
+4. After deploy, admin URL: `https://aggregatorcore-admin.onrender.com`
+5. **Important:** Add to **backend** env vars: `CORS_ORIGINS` = `https://aggregatorcore-admin.onrender.com`
+6. Redeploy backend after adding CORS
+
+### Option B: Manual Web Service
+
+1. **New** → **Web Service**
+2. Connect repo, branch: main
+3. **Root Directory:** `admin-web`
+4. **Build Command:** `npm install && npm run build`
+5. **Start Command:** `npm start`
+6. **Environment:**
+   - `NODE_ENV` = production
+   - `NEXT_PUBLIC_API_BASE_URL` = https://aggregatorcore.onrender.com
+7. **Instance:** Free
+8. Deploy
+
+### After Admin Deploy
+
+Update backend `CORS_ORIGINS` to include your admin URL, then redeploy backend.
+
+## Local Development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:3000. Login with the password from backend `ADMIN_PASSWORD`.
-
-## Pages
-
-- `/login` - Password login (MVP)
-- `/lenders` - List, add, edit, toggle active
-- `/logs/clicks` - Click tracking table
-- `/users` - Users table
+Set `NEXT_PUBLIC_API_BASE_URL=http://localhost:5000` in `.env.local`.
