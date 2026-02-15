@@ -30,9 +30,12 @@ app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(compression());
 app.use(express.json());
 
-// Session store: Postgres when DATABASE_URL set, else memory (fallback on init error)
+// Session store: Postgres when DATABASE_URL set, else memory
+// Set SESSION_STORE=memory to force memory store (sessions lost on restart, but works)
 let sessionStore;
-if (process.env.DATABASE_URL) {
+if (process.env.SESSION_STORE === 'memory' || !process.env.DATABASE_URL) {
+  logger.info('Session store: memory');
+} else {
   try {
     const pgSession = require('connect-pg-simple')(session);
     const { Pool } = require('pg');
