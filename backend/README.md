@@ -58,6 +58,7 @@ NODE_ENV=production npm start
    | ADMIN_PASSWORD | bcrypt hash (run `node scripts/hash-admin-password.js <pwd>`) |
    | SESSION_SECRET | Strong random string (e.g. `openssl rand -hex 32`) |
    | CORS_ORIGINS | https://your-admin.onrender.com,https://your-mobile-app.com |
+   | DATABASE_URL | Supabase Postgres connection string (Project Settings > Database) – **required for admin sessions** |
 
 5. **Firebase JSON:** In Render, paste the JSON as a single line (minified) or use base64:
    - Linux/Mac: `cat firebase-service-account.json | base64 -w 0`
@@ -72,6 +73,7 @@ NODE_ENV=production npm start
 - [ ] Set strong `ADMIN_PASSWORD` (use `node scripts/hash-admin-password.js <pwd>` for hash)
 - [ ] Set strong `SESSION_SECRET`
 - [ ] Configure `CORS_ORIGINS` for your admin and mobile app origins
+- [ ] Set `DATABASE_URL` (Supabase connection string) for persistent admin sessions
 - [ ] Ensure all Supabase tables exist
 - [ ] Use HTTPS (Render provides automatically)
 

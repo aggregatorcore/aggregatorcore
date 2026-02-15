@@ -13,6 +13,9 @@ const { requestLogger } = require('./middlewares/requestLogger');
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
 
+// Required for cookies/sessions behind Render's reverse proxy
+app.set('trust proxy', 1);
+
 let corsOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
   : ['http://localhost:3000'];
@@ -25,8 +28,19 @@ app.use(helmet());
 app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(compression());
 app.use(express.json());
+
+// Session store: Postgres in production (persists across restarts), memory in dev
+let sessionStore;
+if (process.env.DATABASE_URL) {
+  const pgSession = require('connect-pg-simple')(session);
+  const { Pool } = require('pg');
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+  sessionStore = new pgSession({ pool, createTableIfMissing: true });
+}
+
 app.use(
   session({
+    store: sessionStore,
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
