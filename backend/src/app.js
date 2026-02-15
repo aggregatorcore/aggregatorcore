@@ -9,6 +9,7 @@ const supabase = require('./config/supabase');
 const routes = require('./routes');
 const { errorHandler } = require('./middlewares/error');
 const { requestLogger } = require('./middlewares/requestLogger');
+const logger = require('./lib/logger');
 
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
@@ -29,13 +30,23 @@ app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(compression());
 app.use(express.json());
 
-// Session store: Postgres in production (persists across restarts), memory in dev
+// Session store: Postgres when DATABASE_URL set, else memory (fallback on init error)
 let sessionStore;
 if (process.env.DATABASE_URL) {
-  const pgSession = require('connect-pg-simple')(session);
-  const { Pool } = require('pg');
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
-  sessionStore = new pgSession({ pool, createTableIfMissing: true });
+  try {
+    const pgSession = require('connect-pg-simple')(session);
+    const { Pool } = require('pg');
+    const dbUrl = process.env.DATABASE_URL;
+    const pool = new Pool({
+      connectionString: dbUrl,
+      ssl: dbUrl.includes('supabase.co') ? { rejectUnauthorized: false } : false,
+    });
+    sessionStore = new pgSession({ pool, createTableIfMissing: true });
+    logger.info('Session store: PostgreSQL');
+  } catch (err) {
+    logger.warn({ err: err.message }, 'Postgres session store init failed, using memory');
+    sessionStore = undefined;
+  }
 }
 
 app.use(

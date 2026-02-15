@@ -1,6 +1,5 @@
 -- Session table for connect-pg-simple (admin auth)
--- Run in Supabase SQL Editor if not using createTableIfMissing
--- Or set DATABASE_URL and the app will create it automatically
+-- Run this in Supabase SQL Editor before using DATABASE_URL
 CREATE TABLE IF NOT EXISTS "session" (
   "sid" varchar NOT NULL,
   "sess" json NOT NULL,

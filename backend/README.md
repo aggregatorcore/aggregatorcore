@@ -67,6 +67,8 @@ NODE_ENV=production npm start
 
 6. **Deploy** – Render will build and start the server.
 
+**If admin login returns 500:** Run the session table SQL (above) in Supabase SQL Editor first. For DATABASE_URL, use the **Connection pooler** (Transaction mode) URL from Supabase Dashboard > Project Settings > Database. The pooler format is `postgresql://postgres.[ref]:[pwd]@aws-0-[region].pooler.supabase.com:6543/postgres`.
+
 ## Production Checklist
 
 - [ ] Set `NODE_ENV=production`
@@ -77,9 +79,21 @@ NODE_ENV=production npm start
 - [ ] Ensure all Supabase tables exist
 - [ ] Use HTTPS (Render provides automatically)
 
-## Required Supabase Table
+## Required Supabase Tables
 
-Run this SQL in Supabase SQL Editor to create the `users` table:
+**Session table** (for admin auth when using DATABASE_URL). Run in Supabase SQL Editor:
+
+```sql
+CREATE TABLE IF NOT EXISTS "session" (
+  "sid" varchar NOT NULL,
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL,
+  PRIMARY KEY ("sid")
+);
+CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
+```
+
+**Users table:**
 
 ```sql
 CREATE TABLE public.users (
