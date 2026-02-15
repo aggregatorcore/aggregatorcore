@@ -11,11 +11,15 @@ const { errorHandler } = require('./middlewares/error');
 const { requestLogger } = require('./middlewares/requestLogger');
 
 const app = express();
+const isProduction = process.env.NODE_ENV === 'production';
 
-const corsOrigins = process.env.CORS_ORIGINS
+let corsOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
   : ['http://localhost:3000'];
-const isProduction = process.env.NODE_ENV === 'production';
+// Production fallback: allow Render admin if CORS_ORIGINS not configured
+if (isProduction && (!process.env.CORS_ORIGINS || process.env.CORS_ORIGINS.trim() === '')) {
+  corsOrigins = ['https://aggregatorcore-1.onrender.com'];
+}
 
 app.use(helmet());
 app.use(cors({ origin: corsOrigins, credentials: true }));
