@@ -48,10 +48,20 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-80">
         <h1 className="text-xl font-semibold mb-4">Admin Login</h1>
         <input
+          type="text"
+          value="admin"
+          readOnly
+          autoComplete="username"
+          className="w-full border rounded px-3 py-2 mb-4 bg-gray-50 text-gray-600"
+          tabIndex={-1}
+          aria-label="Username"
+        />
+        <input
           type="password"
           value={password}
           onChange={(e) => setPasswordInput(e.target.value)}
           placeholder="Password"
+          autoComplete="current-password"
           className="w-full border rounded px-3 py-2 mb-4"
           required
         />

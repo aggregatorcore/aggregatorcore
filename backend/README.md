@@ -2,6 +2,8 @@
 
 Node.js Express backend for the Loan Aggregator app.
 
+📖 **Supabase + Render integration:** See [docs/SUPABASE-RENDER-INTEGRATION.md](../docs/SUPABASE-RENDER-INTEGRATION.md)
+
 ## Setup
 
 1. Copy `.env.example` to `.env` and fill in credentials.
@@ -21,6 +23,7 @@ Node.js Express backend for the Loan Aggregator app.
 | FIREBASE_SERVICE_ACCOUNT_JSON | Yes* | Firebase service account JSON (for cloud deploy) |
 | FIREBASE_SERVICE_ACCOUNT_PATH | Yes* | Path to Firebase JSON file (for local) |
 | CORS_ORIGINS | Yes (prod) | Comma-separated allowed origins (e.g. admin URL) |
+| REDIS_URL | Yes (prod) | Redis connection string for session store |
 | FIREBASE_WEB_API_KEY | No | For E2E test script |
 | LOG_LEVEL | No | pino log level (default: info) |
 
@@ -58,7 +61,7 @@ NODE_ENV=production npm start
    | ADMIN_PASSWORD | bcrypt hash (run `node scripts/hash-admin-password.js <pwd>`) |
    | SESSION_SECRET | Strong random string (e.g. `openssl rand -hex 32`) |
    | CORS_ORIGINS | https://your-admin.onrender.com,https://your-mobile-app.com |
-   | DATABASE_URL | Supabase Postgres connection string (Project Settings > Database) – **required for admin sessions** |
+   | REDIS_URL | Redis connection string (see [Redis setup](#redis-setup) below) |
 
 5. **Firebase JSON:** In Render, paste the JSON as a single line (minified) or use base64:
    - Linux/Mac: `cat firebase-service-account.json | base64 -w 0`
@@ -67,7 +70,15 @@ NODE_ENV=production npm start
 
 6. **Deploy** – Render will build and start the server.
 
-**If admin login returns 500:** Run the session table SQL (above) in Supabase SQL Editor first. For DATABASE_URL, use the **Connection pooler** (Transaction mode) URL from Supabase Dashboard > Project Settings > Database. The pooler format is `postgresql://postgres.[ref]:[pwd]@aws-0-[region].pooler.supabase.com:6543/postgres`.
+## Redis Setup
+
+Sessions are stored in Redis. Without `REDIS_URL`, the app falls back to in-memory storage (sessions lost on restart).
+
+**Options:**
+
+1. **Render Redis** – Add a Redis instance in Render Dashboard, copy its internal URL to `REDIS_URL`.
+2. **Upstash** – Create a Redis database at [upstash.com](https://upstash.com), use the REST URL (format: `rediss://default:[password]@[host]:6379`).
+3. **Local** – `REDIS_URL=redis://localhost:6379` for development.
 
 ## Production Checklist
 
@@ -75,23 +86,11 @@ NODE_ENV=production npm start
 - [ ] Set strong `ADMIN_PASSWORD` (use `node scripts/hash-admin-password.js <pwd>` for hash)
 - [ ] Set strong `SESSION_SECRET`
 - [ ] Configure `CORS_ORIGINS` for your admin and mobile app origins
-- [ ] Set `DATABASE_URL` (Supabase connection string) for persistent admin sessions
+- [ ] Set `REDIS_URL` for persistent admin sessions
 - [ ] Ensure all Supabase tables exist
 - [ ] Use HTTPS (Render provides automatically)
 
 ## Required Supabase Tables
-
-**Session table** (for admin auth when using DATABASE_URL). Run in Supabase SQL Editor:
-
-```sql
-CREATE TABLE IF NOT EXISTS "session" (
-  "sid" varchar NOT NULL,
-  "sess" json NOT NULL,
-  "expire" timestamp(6) NOT NULL,
-  PRIMARY KEY ("sid")
-);
-CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
-```
 
 **Users table:**
 

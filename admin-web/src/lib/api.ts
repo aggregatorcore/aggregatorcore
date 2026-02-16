@@ -1,4 +1,6 @@
-const BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+// Use proxy (same-origin) in prod for Safari/iOS cookie support
+const BASE =
+  process.env.NEXT_PUBLIC_USE_PROXY === "true" ? "" : (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000");
 
 const defaultOptions: RequestInit = {
   credentials: "include",

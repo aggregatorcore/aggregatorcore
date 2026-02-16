@@ -30,26 +30,23 @@ app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(compression());
 app.use(express.json());
 
-// Session store: Postgres when DATABASE_URL set, else memory
-// Set SESSION_STORE=memory to force memory store (sessions lost on restart, but works)
+// Session store: Redis when REDIS_URL set, else memory (dev fallback)
 let sessionStore;
-if (process.env.SESSION_STORE === 'memory' || !process.env.DATABASE_URL) {
-  logger.info('Session store: memory');
-} else {
+if (process.env.REDIS_URL) {
   try {
-    const pgSession = require('connect-pg-simple')(session);
-    const { Pool } = require('pg');
-    const dbUrl = process.env.DATABASE_URL;
-    const pool = new Pool({
-      connectionString: dbUrl,
-      ssl: dbUrl.includes('supabase.co') ? { rejectUnauthorized: false } : false,
-    });
-    sessionStore = new pgSession({ pool, createTableIfMissing: true });
-    logger.info('Session store: PostgreSQL');
+    const { createClient } = require('redis');
+    const { RedisStore } = require('connect-redis');
+    const redisClient = createClient({ url: process.env.REDIS_URL });
+    redisClient.connect().catch((err) => logger.error({ err: err.message }, 'Redis connect failed'));
+    sessionStore = new RedisStore({ client: redisClient, prefix: 'admin:' });
+    logger.info('Session store: Redis');
   } catch (err) {
-    logger.warn({ err: err.message }, 'Postgres session store init failed, using memory');
+    logger.warn({ err: err.message }, 'Redis session store init failed, using memory');
     sessionStore = undefined;
   }
+} else {
+  logger.warn('REDIS_URL not set – using MemoryStore (sessions lost on restart)');
+  sessionStore = undefined;
 }
 
 app.use(
