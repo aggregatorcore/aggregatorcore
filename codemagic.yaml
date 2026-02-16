@@ -22,6 +22,8 @@ workflows:
       - name: Build iOS
         script: flutter build ios --debug --no-codesign
 
-    artifacts:
-      - aggregator_mobile/build/app/outputs/flutter-apk/*.apk
-      - aggregator_mobile/build/ios/iphoneos/*.app
+      - name: Copy artifacts to export dir
+        script: |
+          mkdir -p $CM_EXPORT_DIR
+          find build -name "*.apk" -exec cp {} $CM_EXPORT_DIR/ \;
+          find build -name "*.app" -type d -exec cp -r {} $CM_EXPORT_DIR/ \;
