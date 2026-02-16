@@ -1,0 +1,27 @@
+workflows:
+  aggregator-mobile:
+    name: Aggregator Mobile
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+
+    # IMPORTANT: Points to aggregator_mobile folder (monorepo)
+    working_directory: aggregator_mobile
+
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+    scripts:
+      - name: Get Flutter packages
+        script: flutter pub get
+
+      - name: Build Android APK
+        script: flutter build apk --debug
+
+      - name: Build iOS
+        script: flutter build ios --debug --no-codesign
+
+    artifacts:
+      - aggregator_mobile/build/app/outputs/flutter-apk/*.apk
+      - aggregator_mobile/build/ios/iphoneos/*.app

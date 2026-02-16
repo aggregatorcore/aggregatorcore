@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "547351966441",
+    "project_id": "aggregatorcore-cfd0e",
+    "storage_bucket": "aggregatorcore-cfd0e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:547351966441:android:4a9c0e552a677e6d82b678",
+        "android_client_info": {
+          "package_name": "com.aggregator.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWopR8VOORWb38c1KoGjFcjcnEZqdQLEM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
