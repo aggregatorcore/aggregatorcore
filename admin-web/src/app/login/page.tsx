@@ -1,5 +1,6 @@
 "use client";
 
+import type { InputHTMLAttributes } from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { checkSession, login } from "@/lib/auth";
@@ -62,7 +63,7 @@ export default function LoginPage() {
           onChange={(e) => setPasswordInput(e.target.value)}
           placeholder="Password"
           autoComplete="current-password"
-          passwordrules="minlength: 1"
+          {...({ passwordrules: "minlength: 1" } as InputHTMLAttributes<HTMLInputElement>)}
           className="w-full border rounded px-3 py-2 mb-4"
           required
         />
